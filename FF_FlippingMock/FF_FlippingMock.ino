@@ -12,6 +12,7 @@
 
 //INPUTS
 int pk[2] = {11,5};
+papera
 
 //OUTPUTS
 //int syncLED = 2;        // 
