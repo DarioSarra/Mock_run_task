@@ -11,15 +11,14 @@
 // 71 = duringpoking on
 
 //INPUTS
-int pk[2] = {11,5};
-papera
+int pk[2] = {11,5}; //IRs right(0) and left(1)
 
 //OUTPUTS
-//int syncLED = 2;        // 
+int syncPOKE = 2;       // Square wave from 100ms after poke in to poke out, PORT: LED
 int spkR = 3;           // speaker for valid pokes PORT: SPKR1
 int led[] = {12, 6};    // LEDs right(0) and left(1) pokes PORT: POKE_1, POKE_3
 int valv[] = {4, 7};    // valves right(0) and left(1) pokesPORT: POKE_1, POKE_3
-int ledHouse = 10;      // masking light PORT: POKE_2 (sends 5v when there is a poke with the frequency of the stimulation)
+int ledHouse = 49;      // masking light PORT: SPKR2 (starts 100ms after poke in, ends TimeAfterPoke after poke out, with the frequency of the stimulation)
 int aoPIN = 44;         // laser stimulation PORT: LZR 
 //////////////                Set Task parameters
 //General settings:
@@ -287,10 +286,16 @@ void task() {
 void updatesoundled() {
   //See if sound and HouseLED needs to be turned on or off:
   if (DuringPoking && !error) {
-      //tone(spkR, Freq);
+      tone(spkR, Freq);
   }
   else {
       noTone(spkR);
+  }
+  if (DuringPoking && PokedIn) {
+    digitalWrite(syncPOKE, HIGH);
+  }
+  else {
+    digitalWrite(syncPOKE, LOW);
   }
   if (DuringPoking && ((millis()-PokingOnset)*StimFreq % 1000 < OnTime*StimFreq)) {
       digitalWrite(ledHouse, HIGH);
