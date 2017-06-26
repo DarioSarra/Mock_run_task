@@ -26,7 +26,7 @@ def preprocess_data(filename):
     data = pd.read_csv(filename, delimiter = '\t', dtype = int, names = ['code','time'])
     data_end = data[data['code'] == -1].index[-1]
     b = data.ix[6:data_end, :]
-    params = 100+np.array(data.code[1:6]) # That's how stuff is encoded in arduino
+    params = np.array(data.code[1:6]) # That's how stuff is encoded in arduino
     pokein = b[b['code'] >= 0].index
     pokeout = b[b['code'] == -1].index
     for ind,val in enumerate(pokein):

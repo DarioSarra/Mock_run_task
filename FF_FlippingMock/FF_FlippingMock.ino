@@ -160,15 +160,15 @@ void setup() {
   }
 
 
-  Serial.println(String(ProbVec[0]-100) + '\t' + String(millis())); // Signal that all is well
+  Serial.println(String(ProbVec[0]) + '\t' + String(millis())); // Signal that all is well
   delay(100);
-  Serial.println(String(ProbVec[1]-100) + '\t' + String(millis())); // Signal that all is well
+  Serial.println(String(ProbVec[1]) + '\t' + String(millis())); // Signal that all is well
   delay(100);
-  Serial.println(String(GamVec[0]-100) + '\t' + String(millis())); // Signal that all is well
+  Serial.println(String(GamVec[0]) + '\t' + String(millis())); // Signal that all is well
   delay(100);
-  Serial.println(String(GamVec[1]-100) + '\t' + String(millis())); // Signal that all is well
+  Serial.println(String(GamVec[1]) + '\t' + String(millis())); // Signal that all is well
   delay(100);
-  Serial.println(String(delta-100) + '\t' + String(millis())); // Signal that all is well
+  Serial.println(String(delta) + '\t' + String(millis())); // Signal that all is well
   delay(100);
   Serial.println(String(-666) + '\t' + String(millis())); // Signal that all is well
 }

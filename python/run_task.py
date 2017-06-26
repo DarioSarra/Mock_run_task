@@ -7,7 +7,6 @@ import openpyxl
 import os
 import preprocessing
 import pandas as pd
-import matplotlib.pyplot as plt
 
 class Box(object):
     def __init__(self, port, number):
@@ -95,25 +94,28 @@ def start_box(box_number):
 
     iC = 97 #char(97): 'a'
     searching = True
+    
+    raw_data = os.path.join(foldername,'raw_data')
 
     while searching:
         session = chr(iC)
         filename = animal+'_'+str(timestamp) + session + '.txt'
-        fname = '/Users/dariosarra/Google Drive/Flipping/Mock_run_task/raw_data/' + filename
+        fname = os.path.join(raw_data, filename)
         iC += 1
         searching = os.path.isfile(fname)
     parameters = [int(protocol_number), int(box_number), int(SessionStim)]
     # update data library
     newRow = [filename,filename[:-4]+'.csv', animal, int(timestamp), session, int(weight)] + parameters
-    xfile = openpyxl.load_workbook('/Users/dariosarra/Google Drive/Flipping/Mock_run_task/datalibrary.xlsx')
+    datalibrary = os.path.join(foldername, 'datalibrary.xlsx')
+    xfile = openpyxl.load_workbook(datalibrary)
     xfile.active.append(newRow)
-    xfile.save('/Users/dariosarra/Google Drive/Flipping//Mock_run_task/datalibrary.xlsx')
+    xfile.save(datalibrary)
     # Write latest filename
     global fnames
     global procs
     fnames[box_number] = fname
     df = pd.DataFrame({'name' : fnames})
-    df.to_csv('/Users/dariosarra/Google Drive/Flipping/Mock_run_task/raw_data/names.csv')
+    df.to_csv(os.path.join(raw_data, 'names.csv'))
     #Connect to arduino, reset, give parameters, save data!
 
     #runSerial(fname, box[box_number], parameters)
@@ -137,9 +139,11 @@ def stop_box(i):
 #    procs[i].isAlive()
 
 if __name__ == '__main__':
+    global foldername
     global stopper
     global fnames
     global procs
+    foldername = os.path.dirname(os.path.dirname(__file__))
     stopper = [False, False, False, False, False]
     fnames = ['x', 'x', 'x', 'x', 'x']
     procs = [None]*5
