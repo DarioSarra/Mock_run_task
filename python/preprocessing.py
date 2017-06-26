@@ -7,6 +7,7 @@ Created on Mon Oct 24 14:00:00 2016
 
 import numpy as np
 import pandas as pd
+import os
 
 def int2bin(i, n):
     v = np.zeros(n, dtype = int)
@@ -38,3 +39,8 @@ def preprocess_data(filename):
         proc_data = np.append(proc_data, next_row, axis = 0)
     dataframe = pd.DataFrame(proc_data, columns = cols)
     return dataframe
+
+foldername = os.path.dirname(os.path.dirname(__file__))
+raw_data = os.path.join(foldername,'raw_data')
+csv_address = os.path.join(foldername, 'raw_data', 'names.csv')
+datalibrary = os.path.join(foldername, 'datalibrary.xlsx')

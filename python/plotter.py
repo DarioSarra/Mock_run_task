@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import preprocessing
 import pandas as pd
-import os
 
 def plotter(ax1, data, dt):
     recent_data = data.ix[data.PokeIn > (data.iloc[-1].PokeIn-dt),:]
@@ -58,10 +57,9 @@ if __name__ == '__main__':
     #plt.ion()
     f, axarr = plt.subplots(2,2, gridspec_kw = {'width_ratios':[3, 1]})
     fnames = ['x','x','x','x','x']
-    foldername = os.path.dirname(os.path.dirname(__file__))
     while True:
         try:
-            df = pd.read_csv(os.path.join(foldername, 'raw_data', 'names.csv'))
+            df = pd.read_csv(preprocessing.csv_address)
             fnames = df.name
         except:
             pass
