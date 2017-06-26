@@ -54,8 +54,9 @@ def water(ax2,data):
         ax2.annotate('READY', xy = (0.1,0.5))
 
 if __name__ == '__main__':
-    #plt.ion()
-    f, axarr = plt.subplots(2,2, gridspec_kw = {'width_ratios':[3, 1]})
+    ordered_keys = sorted(preprocessing.boxes.keys())
+    n_boxes = len(ordered_keys)
+    f, axarr = plt.subplots(n_boxes,2, gridspec_kw = {'width_ratios':[3, 1]})
     fnames = ['x','x','x','x','x']
     while True:
         try:
@@ -63,13 +64,18 @@ if __name__ == '__main__':
             fnames = df.name
         except:
             pass
-        i = 3
-        if fnames[i] != 'x':
-            try:
-                data = preprocessing.preprocess_data(fnames[i])
-                plotter(axarr[i//2-1,0],data,60)
-                water(axarr[i//2-1,1],data)
-            except:
-                pass
+        for i in range(n_boxes):
+            box_number = ordered_keys[i]
+            if fnames[box_number] != 'x':
+                try:
+                    data = preprocessing.preprocess_data(fnames[box_number])
+                    if n_boxes > 1:
+                        plotter(axarr[i,0],data,60)
+                        water(axarr[i,1],data)
+                    else:
+                        plotter(axarr[0],data,60)
+                        water(axarr[1],data)
+                except:
+                    pass
         plt.show()
         plt.pause(0.05)

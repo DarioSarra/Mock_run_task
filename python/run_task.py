@@ -8,14 +8,10 @@ import os
 import preprocessing
 import pandas as pd
 
-class Box(object):
-    def __init__(self, port, number):
-        self.port = port
-        self.number = number
+
 #####################################################################################
 # This is what sets communication with arduino
-def runSerial(fname, box, parameters):
-
+def runSerial(fname, box_number, box_port, parameters):
     ##    fname = file location
     ##    box = what box you are using
     ##    highprob = e.g. 45 or 90
@@ -30,7 +26,7 @@ def runSerial(fname, box, parameters):
     baud = '115200'         #set frequency of communication, must be in agreement with arduino
     fmode = 'ab'            #Opens a file for appending in binary format, begin the txt raw data
 
-    port = serial.Serial(box.port, baud)
+    port = serial.Serial(box_port, baud)
     
     # open(fname,fmode) as outf: technicality for pythin to write arduino's messages
     outf = open(fname,fmode)
@@ -50,19 +46,19 @@ def runSerial(fname, box, parameters):
         port.write(signal)
     global stopper #Boolean array set on false for each box, 
     #when is true it stops writing the txt file and close communication with arduino
-    stopper[box.number] = False
+    stopper[box_number] = False
     #Main loop: as long stopper is false python keep on writing arduino's messages
-    while port.isOpen() & ~stopper[box.number]:
+    while port.isOpen() & ~stopper[box_number]:
         if port.inWaiting()>0:
             try:
                 x = port.readline()
                 if b'-666' in x:
-                    print("All is well in box %d!!!\n" %box.number)
+                    print("All is well in box %d!!!\n" %box_number)
                 outf.write(x)
                 outf.flush()
 
             except:
-                print("Error in box %d!!!\n" %box.number)
+                print("Error in box %d!!!\n" %box_number)
                 outf.write("Error")
                 outf.flush()
     #When stopper is true Python exits the main loop and proceed to preprocessing            
@@ -70,7 +66,7 @@ def runSerial(fname, box, parameters):
     dataframe = preprocessing.preprocess_data(fname)#fname is the txt file where we are writing
     csv_fname = fname[:-4]+'.csv' #change extension to create the name for the csv
     dataframe.to_csv(csv_fname)#save the preprocess data in a csv file
-    print("I'm done in box %d!!!\n" %box.number)
+    print("I'm done in box %d!!!\n" %box_number)
 ################################################################################
 def start_box(box_number):
     # Get keyboard input
@@ -118,7 +114,7 @@ def start_box(box_number):
     df = pd.DataFrame({'name' : fnames})
     df.to_csv(preprocessing.csv_address)
     #initiate run serial on a separate thread to keep control of the console, or initiate more boxes
-    procs[box_number] = threading.Thread(target=runSerial, args=([fname, box[box_number], parameters]))
+    procs[box_number] = threading.Thread(target=runSerial, args=([fname, box_number, preprocessing.boxes[box_number], parameters]))
     procs[box_number].start()
 ############################################
 def close_all():
@@ -145,6 +141,4 @@ if __name__ == '__main__':
     stopper = [False, False, False, False, False]
     fnames = ['x', 'x', 'x', 'x', 'x']
     procs = [None]*5
-    box = [None]*5
-    box[3] = Box('/dev/tty.usbmodem1421', 3)#assignes to a given box an arduino(depend on the usb port)
 

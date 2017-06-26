@@ -46,3 +46,7 @@ foldername = os.path.dirname(os.path.dirname(__file__)) # run_task folder
 raw_data = os.path.join(foldername,'raw_data') # raw_data folder
 csv_address = os.path.join(raw_data, 'names.csv') #where to read names of csv to plot
 datalibrary = os.path.join(foldername, 'datalibrary.xlsx') # excel file with list of sessions
+
+#Define list of boxes
+
+boxes = {3 : '/dev/tty.usbmodem1421'} #assignes to a given box an arduino(depend on the usb port)
