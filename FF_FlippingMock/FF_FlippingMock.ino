@@ -32,12 +32,12 @@ int   durRew[2];
 //////////////              Internal variables for Task
 //Get task parameters from python later on:
 int   Choice                 = -1;
-int   ProbVec[]              = {30,90};
-int   GamVec[]               = {30,90};
+int   ProbVec[]              = {45,90};
+int   GamVec[]               = {15,90};
 int   delta;
 int   Box                    = -1;
 int   SessionStim            = -1;
-int   Counter                = 1;
+int   Counter                = 0;
 int   BlockLength;
 
 
@@ -155,7 +155,7 @@ void setup() {
       case 6:
         Protocollo = 0;
         delta = 0;
-        BlockLength = random(3,6);
+        BlockLength = random(2,3);
         break;
   }
 
@@ -241,8 +241,8 @@ void task() {
               Serial3.write('w');
               Serial.println(String(-91) + '\t' + String(millis()));
               WallOn = !WallOn;
-              Counter = 1;
-              BlockLength = random(3,6); //BlockLength must be re-sorted to avoid same length blocks
+              Counter = 0;
+              BlockLength = random(2,3); //BlockLength must be re-sorted to avoid same length blocks
             }
           }
         }

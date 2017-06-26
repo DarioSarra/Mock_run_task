@@ -17,7 +17,7 @@ Servo myservo;  // create servo object to control a servo
  *  0 is max speed clockwise
  *  180 is max speed counterclockwise
  */
-int   InOut = 1;
+int   InOut = 0;
 int   Direction[]              = {0,180};
 int   Break[]                  = {180,0};
 int   Time[]                   = {2430,2500};
