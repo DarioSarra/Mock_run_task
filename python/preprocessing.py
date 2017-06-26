@@ -8,7 +8,7 @@ Created on Mon Oct 24 14:00:00 2016
 import numpy as np
 import pandas as pd
 import os
-
+#function to convert numbers from arduino in binary values, each digit is a condition
 def int2bin(i, n):
     v = np.zeros(n, dtype = int)
     curr_i = i
@@ -18,7 +18,7 @@ def int2bin(i, n):
         curr_i = (curr_i-remainder)//2
     return v
 
-#'DR4_160525a.txt'
+# preprocess arduino data stored at location filename: outputs a pandas dataframe
 # 1 is left!!!!
 def preprocess_data(filename):
     n = 6 #num variables!
@@ -40,7 +40,9 @@ def preprocess_data(filename):
     dataframe = pd.DataFrame(proc_data, columns = cols)
     return dataframe
 
-foldername = os.path.dirname(os.path.dirname(__file__))
-raw_data = os.path.join(foldername,'raw_data')
-csv_address = os.path.join(foldername, 'raw_data', 'names.csv')
-datalibrary = os.path.join(foldername, 'datalibrary.xlsx')
+# computes location of relevant files and folders
+
+foldername = os.path.dirname(os.path.dirname(__file__)) # run_task folder
+raw_data = os.path.join(foldername,'raw_data') # raw_data folder
+csv_address = os.path.join(raw_data, 'names.csv') #where to read names of csv to plot
+datalibrary = os.path.join(foldername, 'datalibrary.xlsx') # excel file with list of sessions

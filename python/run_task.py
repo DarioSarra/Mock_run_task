@@ -12,7 +12,8 @@ class Box(object):
     def __init__(self, port, number):
         self.port = port
         self.number = number
-
+#####################################################################################
+# This is what sets communication with arduino
 def runSerial(fname, box, parameters):
 
     ##    fname = file location
@@ -26,13 +27,15 @@ def runSerial(fname, box, parameters):
     ##    parameters = protocol e box number alla fine
 
     #print(fname)
-    baud = '115200'
-    fmode = 'ab'            #Opens a file for appending in binary format
+    baud = '115200'         #set frequency of communication, must be in agreement with arduino
+    fmode = 'ab'            #Opens a file for appending in binary format, begin the txt raw data
 
     port = serial.Serial(box.port, baud)
+    
+    # open(fname,fmode) as outf: technicality for pythin to write arduino's messages
     outf = open(fname,fmode)
 
-    #with serial.Serial(addr,baud) as port, open(fname,fmode) as outf:
+    #open port serial.Serial(addr,baud): 
     if port.isOpen()==False:
         port.open()
 
@@ -40,13 +43,15 @@ def runSerial(fname, box, parameters):
 
     time.sleep(2.5)
 
-    #send parameters to start script and assign reward probabilities and amount etc.
+    #send parameters to start script:
     for parameter in parameters:
         time.sleep(0.5)
         signal = str(chr(int(parameter))).encode('ascii')
         port.write(signal)
-    global stopper
+    global stopper #Boolean array set on false for each box, 
+    #when is true it stops writing the txt file and close communication with arduino
     stopper[box.number] = False
+    #Main loop: as long stopper is false python keep on writing arduino's messages
     while port.isOpen() & ~stopper[box.number]:
         if port.inWaiting()>0:
             try:
@@ -60,17 +65,17 @@ def runSerial(fname, box, parameters):
                 print("Error in box %d!!!\n" %box.number)
                 outf.write("Error")
                 outf.flush()
-    # Add preprocessing to get csv version of dataframe
-    dataframe = preprocessing.preprocess_data(fname)
-    csv_fname = fname[:-4]+'.csv'
-    dataframe.to_csv(csv_fname)
+    #When stopper is true Python exits the main loop and proceed to preprocessing            
+    # Call preprocessing module to get csv version of dataframe
+    dataframe = preprocessing.preprocess_data(fname)#fname is the txt file where we are writing
+    csv_fname = fname[:-4]+'.csv' #change extension to create the name for the csv
+    dataframe.to_csv(csv_fname)#save the preprocess data in a csv file
     print("I'm done in box %d!!!\n" %box.number)
-
+################################################################################
 def start_box(box_number):
     # Get keyboard input
     animal = input("What is name of the animal?")
     weight = input("What's its weight?")
-    #box_number = int(input("What box?"))
 
     protocol_number = input("Protocol? \n" \
     "1) Low Protocol and delta = 0 \n" + \
@@ -80,10 +85,10 @@ def start_box(box_number):
     "5) Initial training Baseline\n"+ \
     "6) ILow Protocol with barrier and delta =0 \n")
 
-    #SessionStim = input("Stimulation?\n" \
-    #"0) No \n" \
-    #"1) Yes\n" )
-    SessionStim = 0
+    SessionStim = input("Stimulation?\n" \
+    "0) No \n" \
+    "1) Yes\n" )
+    #SessionStim = 0
 
     # get timestamp and set filename
     year = datetime.datetime.now().year
@@ -96,11 +101,11 @@ def start_box(box_number):
     searching = True
     while searching:
         session = chr(iC)
-        filename = animal+'_'+str(timestamp) + session + '.txt'
+        filename = animal+'_'+str(timestamp) + session + '.txt'#build file name plus char
         fname = os.path.join(preprocessing.raw_data, filename)
-        iC += 1
-        searching = os.path.isfile(fname)
-    parameters = [int(protocol_number), int(box_number), int(SessionStim)]
+        iC += 1 #increment IC to use othe potential char
+        searching = os.path.isfile(fname)#search if the filename exist if doesn't exits loop
+    parameters = [int(protocol_number), int(box_number), int(SessionStim)] #these will be used by runSerial function
     # update data library
     newRow = [filename,filename[:-4]+'.csv', animal, int(timestamp), session, int(weight)] + parameters
     xfile = openpyxl.load_workbook(preprocessing.datalibrary)
@@ -109,31 +114,30 @@ def start_box(box_number):
     # Write latest filename
     global fnames
     global procs
-    fnames[box_number] = fname
+    fnames[box_number] = fname #update box file name
     df = pd.DataFrame({'name' : fnames})
     df.to_csv(preprocessing.csv_address)
-    #Connect to arduino, reset, give parameters, save data!
-
-    #runSerial(fname, box[box_number], parameters)
+    #initiate run serial on a separate thread to keep control of the console, or initiate more boxes
     procs[box_number] = threading.Thread(target=runSerial, args=([fname, box[box_number], parameters]))
     procs[box_number].start()
-
-
-#
-#
+############################################
 def close_all():
+    #set true in all boxes and close them
     global stopper
     for i in range(len(stopper)):
         stopper[i] = True
-#
+###########################################
 def stop_box(i):
+    #set true on the box in use to close
     global stopper
     stopper[i] = True
-
-#
+######################$######################
+#in case of serious debugging about multithreading
 #def check_process(i):
 #    procs[i].isAlive()
-
+############################################
+#when you send runtask the first time it erases all previous setting
+#!!!!do not run "runtask" to solve issue on 1 box if others are running!!!!!
 if __name__ == '__main__':
     global stopper
     global fnames
@@ -142,7 +146,5 @@ if __name__ == '__main__':
     fnames = ['x', 'x', 'x', 'x', 'x']
     procs = [None]*5
     box = [None]*5
-    box[3] = Box('/dev/tty.usbmodem1421', 3)
-#    procs[0] = threading.Thread(target=visualize_data, args=([]))
-#    procs[2] = threading.Thread(target=run_box, args=([box2]))
-#    procs[4] = threading.Thread(target=run_box, args=([box4]))
+    box[3] = Box('/dev/tty.usbmodem1421', 3)#assignes to a given box an arduino(depend on the usb port)
+
