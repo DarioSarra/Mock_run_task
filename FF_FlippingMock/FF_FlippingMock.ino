@@ -18,8 +18,8 @@ int syncPOKE = 2;       // Square wave from 100ms after poke in to poke out, POR
 int spkR = 3;           // speaker for valid pokes PORT: SPKR1
 int led[] = {12, 6};    // LEDs right(0) and left(1) pokes PORT: POKE_1, POKE_3
 int valv[] = {4, 7};    // valves right(0) and left(1) pokesPORT: POKE_1, POKE_3
-int ledHouse = 49;      // masking light PORT: SPKR2 (starts 100ms after poke in, ends TimeAfterPoke after poke out, with the frequency of the stimulation)
-int aoPIN = 44;         // laser stimulation PORT: LZR 
+int ledHouse = 47;      // masking light PORT: SPKR3 (starts 100ms after poke in, ends TimeAfterPoke after poke out, with the frequency of the stimulation)
+int aoPIN = 44;         // laser stimulation PORT: LZR
 //////////////                Set Task parameters
 //General settings:
 unsigned long   MinPokeTime = 100;            //Time an individual poke has to last to count as a poke (to discard whisker detection, e.g.)
