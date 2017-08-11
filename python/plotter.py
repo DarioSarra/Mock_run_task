@@ -24,6 +24,10 @@ def plotter(ax1, data, dt):
             hatch = 'x'
         else:
             hatch = ''
+        if recent_data.ix[i, 'Wall'] == 1:
+            hatch = '-'
+        else:
+            hatch = ''
         y = recent_data.ix[i,'Side']
         x = recent_data.ix[i,'PokeIn']
         height = 0.5
@@ -45,11 +49,13 @@ def plotter(ax1, data, dt):
 
 def water(ax2,data):
     note = 'Rewards = %d' %sum(data.Reward)
+    note2 = 'Streaks = %d' %(sum(data.Side)*2)
     ax2.clear()
     ax2.set_xticks([])
     ax2.set_yticks([])
     if (data.shape[0] > 0) :
         ax2.annotate(note, xy = (0.1,0.5))
+        ax2.annotate(note2, xy = (0.1,0.25))
     else:
         ax2.annotate('READY', xy = (0.1,0.5))
 

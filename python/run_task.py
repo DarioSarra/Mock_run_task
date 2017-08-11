@@ -75,11 +75,11 @@ def start_box(box_number):
 
     protocol_number = input("Protocol? \n" \
     "1) Low Protocol and delta = 0 \n" + \
-    "2) High Protocol and delta = 0 \n " + \
+    "2) High Protocol and delta = 0 \n" + \
     "3) Random Protocol and delta = 0.05 \n" + \
     "4) Random Protocol and delta = 0.5\n" + \
     "5) Initial training Baseline\n"+ \
-    "6) ILow Protocol with barrier and delta =0 \n")
+    "6) Low Protocol with barrier and delta =0 \n")
 
     SessionStim = input("Stimulation?\n" \
     "0) No \n" \
