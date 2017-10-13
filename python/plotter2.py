@@ -24,6 +24,14 @@ def plotter(ax1, data, dt):
             hatch = 'x'
         else:
             hatch = ''
+        if recent_data.ix[i, 'Stim'] == 1:
+            stimolato = 'blue'
+        else:
+            stimolato = 'black'
+        if recent_data.ix[i, 'Wall'] == 1:
+            hatch = '-'
+        else:
+            hatch = ''
         y = recent_data.ix[i,'Side']
         x = recent_data.ix[i,'PokeIn']
         height = 0.5
@@ -35,9 +43,10 @@ def plotter(ax1, data, dt):
             width,          # width
             height,          # height
             hatch = hatch,
-
+            edgecolor = stimolato,
             facecolor = color,
-            fill = fill
+            fill = fill,
+            linewidth = 1.3
             )
         )
     ax1.set_xlim([data.iloc[-1].PokeIn-dt,data.iloc[-1].PokeOut])

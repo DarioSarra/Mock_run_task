@@ -49,4 +49,5 @@ datalibrary = os.path.join(foldername, 'datalibrary.xlsx') # excel file with lis
 
 #Define list of boxes
 
-boxes = {3 : 'COM3'} #assignes to a given box an arduino(depend on the usb port)
+boxes = {3 : '/dev/cu.usbmodem1411'} #assignes to a given box an arduino(depend on the usb port)
+#boxes = {3 : 'COM7'} #assignes to a given box an arduino(depend on the usb port)

@@ -12,20 +12,25 @@
 
 //INPUTS
 int pk[2] = {11,5}; //IRs right(0) and left(1)
+#define Poke_IR_Right A2
+#define Poke_IR_Left A8
+#define read_IR_Right digitalRead(Poke_IR_Right)
+#define read_IR_Left digitalRead(Poke_IR_Left)
 
 //OUTPUTS
-int syncPOKE = 2;       // Square wave from 100ms after poke in to poke out, PORT: LED
-int spkR = 3;           // speaker for valid pokes PORT: SPKR1
+int syncLED = 47;       // Square wave from 100ms after poke in to poke out, PORT: SPKR3
+int spkR = 3;          // speaker for valid pokes PORT: SPKR1
 int led[] = {12, 6};    // LEDs right(0) and left(1) pokes PORT: POKE_1, POKE_3
 int valv[] = {4, 7};    // valves right(0) and left(1) pokesPORT: POKE_1, POKE_3
-int ledHouse = 47;      // masking light PORT: SPKR3 (starts 100ms after poke in, ends TimeAfterPoke after poke out, with the frequency of the stimulation)
-int aoPIN = 44;         // laser stimulation PORT: LZR
+int ledHouse = 10;      // masking light PORT: POKE2 (starts 100ms after poke in, ends TimeAfterPoke after poke out, with the frequency of the stimulation)
+int aoPIN = 46;         // laser stimulation PORT: LZR 
 //////////////                Set Task parameters
 //General settings:
 unsigned long   MinPokeTime = 100;            //Time an individual poke has to last to count as a poke (to discard whisker detection, e.g.)
 
 //Reward duration, calibrate here   (Vector of calibrated values for integers:)
 int   durRewBox2[] = {52, 45}; // 0 is right 1 is left
+int   durRewBox3[] = {39, 41}; // 0 is right 1 is left
 int   durRewBox4[] = {42, 43}; // 0 is right 1 is left
 int   durRew[2];
 
@@ -33,12 +38,14 @@ int   durRew[2];
 //Get task parameters from python later on:
 int   Choice                 = -1;
 int   ProbVec[]              = {45,90};
-int   GamVec[]               = {15,90};
+int   GamVec[]               = {25,50};
 int   delta;
 int   Box                    = -1;
 int   SessionStim            = -1;
 int   Counter                = 0;
 int   BlockLength;
+int   MinBlockLength         = 11;
+int   MaxBlockLength         = 15;
 
 
 //For Task:
@@ -48,6 +55,7 @@ unsigned long TimeLastPokeOut = 0;
 int valuePk[] = {0, 0};
 int state = 1;
 int Protocollo;
+int Start = 0; //use to randomly set the wall in or out at the beginning of the session
 unsigned long Freq = 8500;
 int Stim = 0;
 int Side = -1;         //To create signal at every pokesideswitch
@@ -63,7 +71,7 @@ unsigned long RSeed;
 
 // for stim
 
-unsigned long   StimFreq               = 75;       //Frequency of masking LED
+unsigned long   StimFreq               = 25;       //Frequency of masking LED
 unsigned long   OnTime                 = 10;       //PulseWidth house LED
 
 // for sound
@@ -76,11 +84,13 @@ unsigned long PokingOnset = 0;
 void setup() {
 
   //INPUTS
-  pinMode(pk[0], INPUT);
-  pinMode(pk[1], INPUT);
+  //pinMode(pk[0], INPUT);
+  //pinMode(pk[1], INPUT);
+  pinMode(Poke_IR_Right, INPUT);
+  pinMode(Poke_IR_Left, INPUT);
 
   //OUTPUTS
-  //  pinMode(syncLED, OUTPUT);
+  pinMode(syncLED, OUTPUT);
   //  pinMode(spkrL, OUTPUT);
   Serial3.begin(115200); //activate serial port 3 rx and tx
   pinMode(spkR, OUTPUT);
@@ -91,7 +101,7 @@ void setup() {
   pinMode(ledHouse, OUTPUT);
   pinMode(aoPIN, OUTPUT);
   //SET DEFAULT
-  //  digitalWrite(syncLED, HIGH);  //HIGH is LED off, LOW is LED on
+  digitalWrite(syncLED, HIGH);  //HIGH is LED off, LOW is LED on
   digitalWrite(led[1], HIGH);     //HIGH is LED off, LOW is LED on
   digitalWrite(led[0], HIGH);     //HIGH is LED off, LOW is LED on
   digitalWrite(valv[1], LOW);
@@ -123,6 +133,7 @@ void setup() {
   Stim = random(0,1+SessionStim); // initialize Stim variable
 
   if (Box == 2) { for (int i = 0; i < 2; i++) {durRew[i] = durRewBox2[i];} }
+  if (Box == 3) { for (int i = 0; i < 2; i++) {durRew[i] = durRewBox3[i];} }
   if (Box == 4) { for (int i = 0; i < 2; i++) {durRew[i] = durRewBox4[i];} }
 
   switch(Choice) {
@@ -155,7 +166,31 @@ void setup() {
       case 6:
         Protocollo = 0;
         delta = 0;
-        BlockLength = random(2,3);
+        Start = random(1,3);
+        BlockLength = random(MinBlockLength,MaxBlockLength);
+        if (Start == 1) {
+          WallOn = false;
+          Serial3.write('b');
+        }
+        else if (Start == 2){
+          WallOn = true;
+          Serial3.write('f');
+        }
+        break;
+
+        case 7:
+        Protocollo = 1;
+        delta = 0;
+        Start = random(1,3);
+        BlockLength = random(MinBlockLength,MaxBlockLength);
+        if (Start == 1) {
+          WallOn = false;
+          Serial3.write('b');
+        }
+        else if (Start == 2){
+          WallOn = true;
+          Serial3.write('f');
+        }
         break;
   }
 
@@ -192,8 +227,10 @@ void task() {
 
   // Read pokes and check whethe LED and speaker need to stop or if the animal has poked out
 
-  for (int i = 0; i < 2; i++) { valuePk[i] = digitalRead(pk[i]);}
+  // for (int i = 0; i < 2; i++) { valuePk[i] = digitalRead(pk[i]);}
   // Detect Poke Out
+  valuePk[0] = read_IR_Right;
+  valuePk[1] = read_IR_Left;
 
   if (!valuePk[1] && !valuePk[0] && PokedIn) {
     TimeLastPokeOut = millis();
@@ -238,11 +275,16 @@ void task() {
             }
             Counter = Counter +1;
             if(Counter >= BlockLength){ //non poisson transition, if streak number is major than rand streak sorted between 35 and 45 Protocol changes
-              Serial3.write('w');
+              if(WallOn){
+                Serial3.write('b');
+              }
+              else if (!WallOn){
+                Serial3.write('f');
+              }
               Serial.println(String(-91) + '\t' + String(millis()));
               WallOn = !WallOn;
               Counter = 0;
-              BlockLength = random(2,3); //BlockLength must be re-sorted to avoid same length blocks
+              BlockLength = random(MinBlockLength,MaxBlockLength); //BlockLength must be re-sorted to avoid same length blocks
             }
           }
         }
@@ -292,10 +334,10 @@ void updatesoundled() {
       noTone(spkR);
   }
   if (DuringPoking && PokedIn) {
-    digitalWrite(syncPOKE, HIGH);
+    digitalWrite(syncLED, HIGH);
   }
   else {
-    digitalWrite(syncPOKE, LOW);
+    digitalWrite(syncLED, LOW);
   }
   if (DuringPoking && ((millis()-PokingOnset)*StimFreq % 1000 < OnTime*StimFreq)) {
       digitalWrite(ledHouse, HIGH);
